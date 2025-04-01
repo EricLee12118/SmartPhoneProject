@@ -1,4 +1,3 @@
-// app/theme.ts
 import { MD3LightTheme } from 'react-native-paper';
 
 // 定义应用主题
@@ -77,5 +76,6 @@ export const globalStyles = {
   },
 };
 
-// 导出颜色以便与旧代码兼容
 export const colors = theme.colors;
+
+export default theme;

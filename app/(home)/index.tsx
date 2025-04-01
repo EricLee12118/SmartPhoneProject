@@ -1,10 +1,9 @@
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
-import { Link } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 import { StyleSheet, FlatList, View } from 'react-native'
 import { globalStyles, theme } from '@/app/theme/theme'
-import { SignOutButton } from '@/app/components/SignOutButton'
+import { appStyles } from '@/app/theme/styles'
 import { 
-  Appbar, 
   Text, 
   Avatar, 
   Badge, 
@@ -12,7 +11,7 @@ import {
   Divider, 
   Card, 
   Button, 
-  FAB 
+  IconButton
 } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -50,18 +49,11 @@ const mockChats: ChatItem[] = [
     unread: 0,
     avatar: require('@/assets/images/favicon.png')
   },
-  {
-    id: '4',
-    name: 'Team Chat',
-    lastMessage: 'Mike: Let\'s schedule a call',
-    time: 'Mon',
-    unread: 5,
-    avatar: require('@/assets/images/favicon.png')
-  },
 ];
 
 export default function Page() {
   const { user } = useUser()
+  const router = useRouter()
   const totalUnread = mockChats.reduce((acc, chat) => acc + chat.unread, 0);
 
   const renderChatItem = ({ item }: { item: ChatItem }) => (
@@ -71,40 +63,51 @@ export default function Page() {
       descriptionNumberOfLines={1}
       descriptionEllipsizeMode="tail"
       left={props => (
-        <View style={{ position: 'relative' }}>
+        <View style={appStyles.avatarContainer}>
           <Avatar.Image 
             {...props} 
             size={50} 
             source={item.avatar} 
           />
           {item.unread > 0 && (
-            <View style={[styles.onlineIndicator, { backgroundColor: theme.colors.online }]} />
+            <View style={[appStyles.onlineIndicator, { backgroundColor: theme.colors.online }]} />
           )}
         </View>
       )}
       right={props => (
-        <View style={{ alignItems: 'flex-end', justifyContent: 'space-between', height: '100%' }}>
-          <Text style={{ fontSize: 12, color: theme.colors.textSecondary }}>{item.time}</Text>
+        <View style={appStyles.timeContainer}>
+          <Text style={appStyles.timeText}>{item.time}</Text>
           {item.unread > 0 && (
-            <Badge style={{ backgroundColor: theme.colors.accent }}>{item.unread}</Badge>
+            <Badge style={appStyles.unreadBadge}>{item.unread}</Badge>
           )}
         </View>
       )}
-      style={{ paddingVertical: 8 }}
+      style={appStyles.chatListItem}
+      onPress={() => {
+        router.push({
+          pathname: "/(chat)/[id]",
+          params: { id: item.id }
+        });
+      }}
     />
   );
 
   return (
-    <SafeAreaView style={globalStyles.container} edges={['top']}>
+    <SafeAreaView style={[globalStyles.container, { paddingTop: 0 }]} edges={['right', 'left']}>
       <SignedIn>
-        <Appbar.Header>
-          <Appbar.Content title="Messages" />
-          <SignOutButton />
-        </Appbar.Header>
+        <View style={appStyles.header}>
+          <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>Messages</Text>
+          
+          <IconButton
+            icon="magnify"
+            size={24}
+            onPress={() => {}}
+          />
+        </View>
         
-        <View style={{ padding: 16 }}>
+        <View style={appStyles.welcomeContainer}>
           <Text variant="titleLarge">
-            Hello, {user?.emailAddresses[0].emailAddress.split('@')[0]}
+            Hello, {user?.emailAddresses[0]?.emailAddress.split('@')[0] || 'User'}
           </Text>
           <Text variant="bodyMedium" style={{ color: theme.colors.textSecondary }}>
             You have {totalUnread} unread messages
@@ -115,37 +118,31 @@ export default function Page() {
           data={mockChats}
           renderItem={renderChatItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 80 }}
+          contentContainerStyle={appStyles.chatListContent}
           ItemSeparatorComponent={() => <Divider />}
         />
         
-        <FAB
-          icon="plus"
-          label="New Message"
-          style={styles.fab}
-          onPress={() => {}}
-        />
       </SignedIn>
       
       <SignedOut>
-        <View style={{ flex: 1, padding: 16, justifyContent: 'center' }}>
-          <Card style={{ padding: 8 }}>
+        <View style={appStyles.signedOutContainer}>
+          <Card style={appStyles.welcomeCard}>
             <Card.Cover 
               source={require('@/assets/images/react-logo.png')} 
-              style={styles.logo}
+              style={appStyles.logo}
             />
-            <Card.Content style={{ alignItems: 'center', padding: 16 }}>
-              <Text variant="headlineMedium" style={{ marginTop: 16 }}>
+            <Card.Content style={appStyles.cardContent}>
+              <Text variant="headlineMedium" style={appStyles.appTitle}>
                 Welcome to ChatApp
               </Text>
-              <Text variant="bodyMedium" style={{ marginBottom: 24 }}>
+              <Text variant="bodyMedium" style={appStyles.appDescription}>
                 The secure messaging platform
               </Text>
               
               <Link href="/(auth)/sign-in" asChild>
                 <Button 
                   mode="contained" 
-                  style={{ marginBottom: 12, width: '100%' }}
+                  style={appStyles.signInButton}
                 >
                   Sign In
                 </Button>
@@ -154,7 +151,7 @@ export default function Page() {
               <Link href="/(auth)/sign-up" asChild>
                 <Button 
                   mode="outlined" 
-                  style={{ width: '100%' }}
+                  style={appStyles.signUpButton}
                 >
                   Create Account
                 </Button>
@@ -166,29 +163,3 @@ export default function Page() {
     </SafeAreaView>
   )
 }
-
-const styles = StyleSheet.create({
-  onlineIndicator: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: theme.colors.surface,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.colors.accent,
-  },
-  logo: {
-    height: 180,
-    resizeMode: 'contain',
-    backgroundColor: 'transparent',
-    marginTop: 16,
-  },
-});

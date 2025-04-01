@@ -16,7 +16,6 @@ export default function Page() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [secureTextEntry, setSecureTextEntry] = React.useState(true)
 
-  // Handle the submission of the sign-in form
   const onSignInPress = async () => {
     if (!isLoaded || isLoading) return
 
