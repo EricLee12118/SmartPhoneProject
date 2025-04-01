@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" 
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  avatar        String?  
+  isOnline      Boolean   @default(false)
+  status        String?   @default("Available") // Available, Busy, Away, Offline
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 关系
+  sentMessages     Message[]  @relation("SentMessages")
+  receivedMessages Message[]  @relation("ReceivedMessages")
+  contacts         Contact[]  @relation("UserContacts")
+  contactOf        Contact[]  @relation("ContactUser")
+  moments          Moment[]
+  sentChatRequests Chat[]     @relation("ChatInitiator")
+  receivedChats    Chat[]     @relation("ChatReceiver")
+  likes            Like[]
+  comments         Comment[]
+}
+
+model Chat {
+  id          String    @id @default(cuid())
+  initiatorId String    // 发起聊天的用户ID
+  receiverId  String    // 接收聊天的用户ID
+  lastMessage String?
+  lastMessageTime DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // 关系
+  initiator   User      @relation("ChatInitiator", fields: [initiatorId], references: [id])
+  receiver    User      @relation("ChatReceiver", fields: [receiverId], references: [id])
+  messages    Message[]
+  
+  // 未读消息计数可以通过查询未读消息来计算
+  
+  @@unique([initiatorId, receiverId]) // 确保两个用户之间只有一个聊天
+}
+
+model Message {
+  id        String    @id @default(cuid())
+  text      String
+  chatId    String
+  senderId  String
+  receiverId String
+  isRead    Boolean   @default(false)
+  timestamp DateTime  @default(now())
+  
+  // 关系
+  chat      Chat      @relation(fields: [chatId], references: [id])
+  sender    User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiver  User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  
+  @@index([chatId])
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model Contact {
+  id        String    @id @default(cuid())
+  userId    String
+  contactId String
+  createdAt DateTime  @default(now())
+  
+  // 关系
+  user      User      @relation("UserContacts", fields: [userId], references: [id])
+  contact   User      @relation("ContactUser", fields: [contactId], references: [id])
+  
+  @@unique([userId, contactId]) // 确保联系人不会重复
+  @@index([userId])
+  @@index([contactId])
+}
+
+model Moment {
+  id        String    @id @default(cuid())
+  userId    String
+  content   String
+  image     String?   // 存储图片的路径或URL
+  createdAt DateTime  @default(now())
+  
+  // 关系
+  user      User      @relation(fields: [userId], references: [id])
+  likes     Like[]
+  comments  Comment[]
+  
+  @@index([userId])
+}
+
+model Like {
+  id       String    @id @default(cuid())
+  userId   String
+  momentId String
+  createdAt DateTime @default(now())
+  
+  user     User      @relation(fields: [userId], references: [id])
+  moment   Moment    @relation(fields: [momentId], references: [id])
+  
+  @@unique([userId, momentId])
+  @@index([userId])
+  @@index([momentId])
+}
+
+model Comment {
+  id       String    @id @default(cuid())
+  userId   String
+  momentId String
+  text     String
+  createdAt DateTime @default(now())
+  
+  user     User      @relation(fields: [userId], references: [id])
+  moment   Moment    @relation(fields: [momentId], references: [id])
+  
+  @@index([userId])
+  @@index([momentId])
+}

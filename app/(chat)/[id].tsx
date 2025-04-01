@@ -1,13 +1,11 @@
-// app/(chat)/[id].tsx
 import { useEffect, useState, useRef } from 'react'
 import { View, FlatList, KeyboardAvoidingView, Platform, TextInput as RNTextInput } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Appbar, Avatar, Text, TextInput, IconButton, Divider } from 'react-native-paper'
 import { globalStyles, theme } from '@/app/theme/theme'
-import { useUser } from '@clerk/clerk-expo'
 import { appStyles } from '@/app/theme/styles'
-// 定义消息类型
+
 interface Message {
   id: string;
   text: string;
@@ -16,7 +14,6 @@ interface Message {
   isMine: boolean;
 }
 
-// 定义聊天对象类型
 interface ChatPartner {
   id: string;
   name: string;
@@ -24,7 +21,6 @@ interface ChatPartner {
   isOnline?: boolean;
 }
 
-// 模拟数据库 - 聊天对象
 const mockChatPartners: Record<string, ChatPartner> = {
   '1': {
     id: '1',
@@ -46,7 +42,6 @@ const mockChatPartners: Record<string, ChatPartner> = {
   }
 };
 
-// 模拟数据库 - 历史消息
 const mockMessages: Record<string, Message[]> = {
   '1': [
     { id: '1-1', text: 'Hi there!', sender: 'Sarah Thompson', timestamp: new Date(2023, 3, 15, 10, 30), isMine: false },
@@ -71,7 +66,6 @@ export default function ChatPage() {
   const { id } = useLocalSearchParams();
   const chatId = typeof id === 'string' ? id : '1';
   const router = useRouter();
-  const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState('');
   const [chatPartner, setChatPartner] = useState<ChatPartner | null>(null);
@@ -85,8 +79,6 @@ export default function ChatPage() {
     if (partner) {
       setChatPartner(partner);
     }
-
-    // 获取历史消息
     const chatMessages = mockMessages[chatId] || [];
     setMessages(chatMessages);
   }, [chatId]);

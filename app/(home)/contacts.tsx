@@ -1,5 +1,5 @@
-import { StyleSheet, FlatList, View } from 'react-native'
-import { globalStyles, theme } from '@/app/theme/theme'
+import { FlatList, View } from 'react-native'
+import { globalStyles } from '@/app/theme/theme'
 import { appStyles } from '@/app/theme/styles'
 import { Text, Avatar, List, Divider, IconButton, Searchbar } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'

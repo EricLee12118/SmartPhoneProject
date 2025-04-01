@@ -1,12 +1,11 @@
-import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
+import { SignedOut, useUser } from '@clerk/clerk-expo'
 import { Link, useRouter } from 'expo-router'
-import { StyleSheet, FlatList, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { globalStyles, theme } from '@/app/theme/theme'
 import { appStyles } from '@/app/theme/styles'
 import { 
   Text, 
   Avatar, 
-  Badge, 
   List, 
   Divider, 
   Card, 
@@ -69,17 +68,19 @@ export default function Page() {
             size={50} 
             source={item.avatar} 
           />
-          {item.unread > 0 && (
-            <View style={[appStyles.onlineIndicator, { backgroundColor: theme.colors.online }]} />
-          )}
+          <View style={[appStyles.onlineIndicator, { backgroundColor: theme.colors.online }]} />
         </View>
       )}
       right={props => (
-        <View style={appStyles.timeContainer}>
+        <View {...props} style={appStyles.timeContainer}>
           <Text style={appStyles.timeText}>{item.time}</Text>
-          {item.unread > 0 && (
-            <Badge style={appStyles.unreadBadge}>{item.unread}</Badge>
-          )}
+          {/* {item.unread > 0 && (
+            <View style={appStyles.unreadCountBadge}>
+              <Text style={appStyles.unreadCountText}>
+                {item.unread > 99 ? '99+' : item.unread}
+              </Text>
+            </View>
+          )} */}
         </View>
       )}
       style={appStyles.chatListItem}
@@ -94,36 +95,33 @@ export default function Page() {
 
   return (
     <SafeAreaView style={[globalStyles.container, { paddingTop: 0 }]} edges={['right', 'left']}>
-      <SignedIn>
-        <View style={appStyles.header}>
-          <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>Messages</Text>
-          
-          <IconButton
-            icon="magnify"
-            size={24}
-            onPress={() => {}}
-          />
-        </View>
+      <View style={appStyles.header}>
+        <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>Messages</Text>
         
-        <View style={appStyles.welcomeContainer}>
-          <Text variant="titleLarge">
-            Hello, {user?.emailAddresses[0]?.emailAddress.split('@')[0] || 'User'}
-          </Text>
-          <Text variant="bodyMedium" style={{ color: theme.colors.textSecondary }}>
-            You have {totalUnread} unread messages
-          </Text>
-        </View>
-        
-        <FlatList
-          data={mockChats}
-          renderItem={renderChatItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={appStyles.chatListContent}
-          ItemSeparatorComponent={() => <Divider />}
+        <IconButton
+          icon="magnify"
+          size={24}
+          onPress={() => {}}
         />
-        
-      </SignedIn>
+      </View>
       
+      <View style={appStyles.welcomeContainer}>
+        <Text variant="titleLarge">
+          Hello, {user?.emailAddresses[0]?.emailAddress.split('@')[0] || 'User'}
+        </Text>
+        <Text variant="bodyMedium" style={{ color: theme.colors.textSecondary }}>
+          You have {totalUnread} unread messages
+        </Text>
+      </View>
+      
+      <FlatList
+        data={mockChats}
+        renderItem={renderChatItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={appStyles.chatListContent}
+        ItemSeparatorComponent={() => <Divider />}
+      />
+              
       <SignedOut>
         <View style={appStyles.signedOutContainer}>
           <Card style={appStyles.welcomeCard}>

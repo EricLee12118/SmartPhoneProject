@@ -21,7 +21,6 @@ export const appStyles = StyleSheet.create({
     marginVertical: 8,
   },
   
-  // 聊天页面样式
   welcomeContainer: {
     paddingHorizontal: 16,
     paddingBottom: 8,
@@ -55,8 +54,20 @@ export const appStyles = StyleSheet.create({
     fontSize: 12,
     color: theme.colors.textSecondary,
   },
-  unreadBadge: {
-    backgroundColor: theme.colors.accent,
+  unreadCountBadge: {
+    backgroundColor: '#FF3B30', 
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    marginTop: 4,
+  },
+  unreadCountText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   fab: {
     position: 'absolute',
@@ -65,8 +76,6 @@ export const appStyles = StyleSheet.create({
     bottom: 80,
     backgroundColor: theme.colors.accent,
   },
-  
-  // 登录/注册页样式
   signedOutContainer: {
     flex: 1,
     padding: 16,
@@ -156,7 +165,6 @@ export const appStyles = StyleSheet.create({
     paddingVertical: 4,
   },
   
-  // 设置页面样式
   settingsScrollContent: {
     paddingBottom: 24,
   },
